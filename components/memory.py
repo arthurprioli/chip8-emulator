@@ -22,6 +22,6 @@ class Memory:
         Args:
             instructions: The list of instructions to place in memory.
         """
-        start = 0xFF
+        start = 0x200
         end = start + len(instructions)
         self.curr_memory[start:end] = instructions

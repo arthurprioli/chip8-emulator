@@ -1,4 +1,5 @@
 from ctypes import c_uint16, c_uint8, POINTER
+from typing import List
 
 class CPU:
     """

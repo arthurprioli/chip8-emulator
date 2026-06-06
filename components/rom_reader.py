@@ -9,7 +9,7 @@ class RomReader:
 
     def __init__(self, rom_path: str = ""):
         self.rom_path = rom_path
-        self.chunk_size = 2
+        self.chunk_size = 1
 
     def get_instructions(self):
         instructions : List[c_uint16] = []
