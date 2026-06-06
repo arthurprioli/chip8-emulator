@@ -54,7 +54,7 @@ def SDL_AppIterate(appstate):
     to_execute = core.fetch_instruction()
     core.decode_instruction(to_execute)
     core.display.update_bits()
-
+    time.sleep(1 / 3600)
     sdl3.SDL_RenderPoints(
         renderer, core.display.bits, sdl3.SDL_arraysize(core.display.bits)
     )
@@ -73,4 +73,3 @@ if __name__ == "__main__":
     sdl3.SDL_EnterAppMainCallbacks(
         argc, argv, SDL_AppInit, SDL_AppIterate, SDL_AppEvent, SDL_AppQuit
     )
-
