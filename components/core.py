@@ -99,7 +99,10 @@ class Core:
                 for i in range(rows):
                     sprite_data = self.memory.curr_memory[self.cpu.index + i]
                     for i in range(7, 0, -1):
-                        curr_pixel = (sprite_data >> i)
+                        curr_pixel = (sprite_data >> i) & 0x01
+                        # If the current pixel in the sprite row is on and the pixel at coordinates X,Y on the screen is also on, turn off the pixel and set VF to 1
+                        # Or if the current pixel in the sprite row is on and the screen pixel is not, draw the pixel at the X and Y coordinates
+
  
 
 
