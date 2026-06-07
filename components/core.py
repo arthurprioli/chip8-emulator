@@ -8,12 +8,13 @@ from components.cpu import CPU
 from components.memory import Memory
 from components.display import Display
 from components.rom_reader import RomReader
+from components.helpers.audio import AudioHelper
 from components.helpers.timers import Timers
 from components.input_handler import InputHandler
 from typing import List
 from ctypes import c_uint16
 
-ROM_PATH = "/home/arthurprioli/Documentos/dev/fun/chip8-emulator/roms/slipperyslope.ch8"
+ROM_PATH = "/home/arthurprioli/Documentos/dev/fun/chip8-emulator/roms/snake.ch8"
 
 
 class Core:
@@ -31,6 +32,7 @@ class Core:
         self.cpu.pc = 0x200  # hard-coded - first address with instructions
         self.input_handler = InputHandler()
         self.timers = Timers()
+        self.audio_helper = AudioHelper()
 
     def fetch_instruction(self):
         """
@@ -74,7 +76,9 @@ class Core:
                                     print(
                                         "Stack underflow on 00EE: stack is empty — stopping simulation"
                                     )
-                                    raise RuntimeError("Stack underflow on return (00EE)")
+                                    raise RuntimeError(
+                                        "Stack underflow on return (00EE)"
+                                    )
 
                                 returned_addr = self.memory.stack.pop()
                                 print(f"Returning address {returned_addr}...")
@@ -222,7 +226,7 @@ class Core:
                     f"Jumping to instruction in address {hex(final_addr)}"
                 )
             case 0xC:
-                random_num = random.randbytes(1)
+                random_num = random.randint(0, 255)
                 final_val = random_num & ((third_nibble << 4) | fourth_nibble)
                 self.cpu.registers[second_nibble] = final_val
                 print(
@@ -240,7 +244,9 @@ class Core:
                         sprite_data = self.memory.curr_memory[addr]
                         print(f"Current sprite data: f{sprite_data}")
                     else:
-                        print(f"DXYN: skipped out-of-bounds sprite byte read at {hex(addr)}")
+                        print(
+                            f"DXYN: skipped out-of-bounds sprite byte read at {hex(addr)}"
+                        )
                         continue
                     for j in range(8):
                         target_y = y_coord + i
@@ -329,7 +335,9 @@ class Core:
                             if 0 <= addr < mem_size:
                                 self.memory.curr_memory[addr] = self.cpu.registers[i]
                             else:
-                                print(f"FX55: skipped out-of-bounds write at {hex(addr)}")
+                                print(
+                                    f"FX55: skipped out-of-bounds write at {hex(addr)}"
+                                )
                     case 0x6:
                         curr_addr = self.cpu.index
                         mem_size = len(self.memory.curr_memory)
@@ -338,7 +346,9 @@ class Core:
                             if 0 <= addr < mem_size:
                                 self.cpu.registers[i] = self.memory.curr_memory[addr]
                             else:
-                                print(f"FX65: skipped out-of-bounds read at {hex(addr)}")
+                                print(
+                                    f"FX65: skipped out-of-bounds read at {hex(addr)}"
+                                )
 
 
 if __name__ == "__main__":

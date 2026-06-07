@@ -1,9 +1,5 @@
 import sdl3
 
-
-import sdl3
-
-
 class InputHandler:
     """
     Class responsible for treating SDL Keyboard inputs.
@@ -16,34 +12,51 @@ class InputHandler:
 
     def __init__(self):
         self.keys = [False] * 16
+        self.released_keys = None
+
+    def handle_event(self, event):
+        mapped = self._handle_key(event.key.scancode)
+        if mapped:
+            if event.type == sdl3.SDL_EVENT_KEY_DOWN:
+                    self.keys[mapped] = True
+            elif event.type == sdl3.SDL_EVENT_KEY_UP:
+                    self.keys[mapped] = False
+                    self.released_key = mapped
 
     def _handle_key(self, scancode):
-        if scancode in (
-            sdl3.SDL_SCANCODE_1,
-            sdl3.SDL_SCANCODE_2,
-            sdl3.SDL_SCANCODE_3,
-            sdl3.SDL_SCANCODE_4,
-            sdl3.SDL_SCANCODE_5,
-            sdl3.SDL_SCANCODE_6,
-            sdl3.SDL_SCANCODE_7,
-            sdl3.SDL_SCANCODE_8,
-            sdl3.SDL_SCANCODE_9,
-        ):
-            return scancode - 29
-        elif scancode == sdl3.SDL_SCANCODE_0:
-            return 0
-        elif scancode == sdl3.SDL_SCANCODE_Q:
-            return 0xA
-        elif scancode == sdl3.SDL_SCANCODE_W:
-            return 0xB
-        elif scancode == sdl3.SDL_SCANCODE_E:
-            return 0xC
-        elif scancode == sdl3.SDL_SCANCODE_R:
-            return 0xD
-        elif scancode == sdl3.SDL_SCANCODE_T:
-            return 0xE
-        elif scancode == sdl3.SDL_SCANCODE_Y:
-            return 0xF
+        match scancode:
+            case sdl3.SDL_SCANCODE_1:
+                return 0x1
+            case sdl3.SDL_SCANCODE_2:
+                return 0x2
+            case sdl3.SDL_SCANCODE_3:
+                return 0x3
+            case sdl3.SDL_SCANCODE_4:
+                return 0xC
+            case sdl3.SDL_SCANCODE_Q:
+                return 0x4
+            case sdl3.SDL_SCANCODE_W:
+                return 0x5
+            case sdl3.SDL_SCANCODE_E:
+                return 0x6
+            case sdl3.SDL_SCANCODE_R:
+                return 0xD
+            case sdl3.SDL_SCANCODE_A:
+                return 0x7
+            case sdl3.SDL_SCANCODE_S:
+                return 0x8
+            case sdl3.SDL_SCANCODE_D:
+                return 0x9
+            case sdl3.SDL_SCANCODE_F:
+                return 0xE
+            case sdl3.SDL_SCANCODE_Z:
+                return 0xA
+            case sdl3.SDL_SCANCODE_X:
+                return 0x0
+            case sdl3.SDL_SCANCODE_C:
+                return 0xB
+            case sdl3.SDL_SCANCODE_V:
+                return 0xF
         return None
 
     def await_key(self):
@@ -62,21 +75,6 @@ class InputHandler:
                     self.keys[mapped] = False
 
     def check_key_pressed(self, value):
-        """
-        Update key state from pending SDL events and return True if `value`
-        is currently pressed.
-        """
-        event = sdl3.SDL_Event()
-        while sdl3.SDL_PollEvent(event):
-            if event.type == sdl3.SDL_EVENT_KEY_DOWN:
-                mapped = self._handle_key(event.key.scancode)
-                if mapped is not None:
-                    self.keys[mapped] = True
-            elif event.type == sdl3.SDL_EVENT_KEY_UP:
-                mapped = self._handle_key(event.key.scancode)
-                if mapped is not None:
-                    self.keys[mapped] = False
-
         if 0 <= value < len(self.keys):
             return self.keys[value]
         return False
