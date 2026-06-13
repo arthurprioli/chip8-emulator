@@ -18,7 +18,7 @@ core = Core()
 
 @sdl3.SDL_AppInit_func
 def SDL_AppInit(appstate, argc, argv):
-    if not sdl3.SDL_Init(sdl3.SDL_INIT_VIDEO):
+    if not sdl3.SDL_Init(sdl3.SDL_INIT_VIDEO | sdl3.SDL_INIT_AUDIO):
         sdl3.SDL_Log("Couldn't initialize SDL: %s".encode() % sdl3.SDL_GetError())
         return sdl3.SDL_APP_FAILURE
 
@@ -37,11 +37,15 @@ def SDL_AppInit(appstate, argc, argv):
     spec.freq = 44100
     spec.format = sdl3.SDL_AUDIO_F32
     spec.channels = 1
-    spec.callback = core.audio_helper.audio_callback
 
-    device = sdl3.SDL_OpenAudioDevice(sdl3.SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, spec)
+    core.audio_helper.stream = sdl3.SDL_OpenAudioDeviceStream(
+        sdl3.SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK,
+        spec,
+        sdl3.SDL_AudioStreamCallback(),
+        None,
+    )
 
-    sdl3.SDL_ResumeAudioDevice(device)
+    sdl3.SDL_ResumeAudioStreamDevice(core.audio_helper.stream)
 
     return sdl3.SDL_APP_CONTINUE
 
@@ -63,8 +67,23 @@ def SDL_AppIterate(appstate):
     sdl3.SDL_SetRenderDrawColor(renderer, 255, 255, 255, sdl3.SDL_ALPHA_OPAQUE)
     sdl3.SDL_SetRenderScale(renderer, 10, 10)
 
-    core.audio_helper.been_enabled = True if core.timers.sound_timer else False
+    print(f"DEBUG: sound timer is {core.timers.sound_timer}")
+    if core.timers.sound_timer > 0:
+        core.audio_helper.beep_enabled = True
+    else:
+        core.audio_helper.beep_enabled = False
 
+    print(f"DEBUG: audio helper is {core.audio_helper.beep_enabled}...")
+
+    if core.audio_helper.beep_enabled:
+        queued = sdl3.SDL_GetAudioStreamQueued(core.audio_helper.stream)
+        if queued < 10:
+            buf = core.audio_helper.generate(44100 // 4)
+            sdl3.SDL_PutAudioStreamData(core.audio_helper.stream, buf, 44100)
+        else:
+            sdl3.SDL_ClearAudioStream(core.audio_helper.stream)
+
+    core.timers.update_timers(time.perf_counter())
     to_execute = core.fetch_instruction()
     core.decode_instruction(to_execute)
     core.display.update_bits()

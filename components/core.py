@@ -3,6 +3,7 @@ Integrates all components to simulate an instruction cycle.
 """
 
 import random
+import sys
 
 from components.cpu import CPU
 from components.memory import Memory
@@ -14,7 +15,7 @@ from components.input_handler import InputHandler
 from typing import List
 from ctypes import c_uint16
 
-ROM_PATH = "/home/arthurprioli/Documentos/dev/fun/chip8-emulator/roms/snake.ch8"
+ROM_PATH = sys.argv[1]
 
 
 class Core:
@@ -292,6 +293,9 @@ class Core:
                                     second_nibble
                                 ]
                             case 0x8:
+                                print(
+                                    f"DEBUG: setting sound timier to {self.cpu.registers[second_nibble]}"
+                                )
                                 self.timers.sound_timer = self.cpu.registers[
                                     second_nibble
                                 ]

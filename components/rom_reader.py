@@ -1,6 +1,8 @@
+import sys
 import os
 from ctypes import c_uint16
 from typing import List
+
 
 class RomReader:
     """
@@ -12,7 +14,7 @@ class RomReader:
         self.chunk_size = 1
 
     def get_instructions(self):
-        instructions : List[c_uint16] = []
+        instructions: List[c_uint16] = []
         with open(self.rom_path, "rb") as f:
             for instruction in iter(lambda: f.read(self.chunk_size), b""):
                 value = int.from_bytes(instruction)
@@ -22,8 +24,5 @@ class RomReader:
 
 
 if __name__ == "__main__":
-    reader = RomReader(
-        rom_path="/home/arthurprioli/Documentos/dev/fun/chip8-emulator/roms/IBM Logo.ch8"
-    )
+    reader = RomReader(rom_path=sys.argv[1])
     print(reader.get_instructions())
-
